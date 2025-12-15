@@ -5,19 +5,9 @@ M.config = {
     show_notifications = true, -- Set to false to suppress all notifications
     model = "groq",
     keymap = "<leader>c",
+    add_keymap = "<leader>ct",
+    clear_keymap = "<leader>cu",
 }
-
--- Setup function to configure the plugin
-function M.setup(opts)
-    M.config = vim.tbl_extend("force", M.config, opts or {})
-    vim.api.nvim_create_user_command("Chace", function()
-        require("chace").run()
-    end, {})
-    local map = M.config.keymap
-    if map and map ~= false then
-        vim.keymap.set("n", map, "<cmd>Chace<CR>", { noremap = true, silent = true, desc = "Chace ran!" })
-    end
-end
 
 -- Safe notify function
 local function safe_notify(msg, level, force)
@@ -40,6 +30,81 @@ local function safe_notify(msg, level, force)
     if M.config.show_notifications or force then
         vim.notify(tostring(msg), level)
     end
+end
+
+-- Setup function to configure the plugin
+function M.setup(opts)
+    M.config = vim.tbl_extend("force", M.config, opts or {})
+
+    vim.api.nvim_create_user_command("Chace", function()
+        require("chace").run()
+    end, {})
+
+    vim.api.nvim_create_user_command("ChaceAddSnippet", function(opts)
+        if opts.fargs and #opts.fargs > 0 then
+            M.add_context_snippet(table.concat(opts.fargs, " "))
+        elseif opts.range ~= 0 and opts.line1 and opts.line2 then
+            local start_line = opts.line1 - 1 -- 0-based
+            local end_line = opts.line2 -- 0-based exclusive end
+
+            local lines = vim.api.nvim_buf_get_lines(0, start_line, end_line, false)
+
+            M.add_context_snippet(table.concat(lines, "\n"))
+        else
+            safe_notify("Usage: Select lines in Visual mode or use :ChaceAddSnippet <text>", vim.log.levels.ERROR)
+        end
+    end, {
+        nargs = "*",
+        complete = "file",
+        range = "%",
+        desc = "Add selected text or argument as a context snippet",
+    })
+
+    vim.api.nvim_create_user_command("ChaceClearContexts", function()
+        M.clear_context_snippets()
+    end, {})
+
+    local run_map = M.config.keymap
+    local add_map = M.config.add_keymap
+    local clear_map = M.config.clear_keymap
+
+    if run_map and run_map ~= false then
+        vim.keymap.set("n", run_map, "<cmd>Chace<CR>", { noremap = true, silent = true, desc = "Chace ran!" })
+    end
+
+    if add_map and add_map ~= false then
+        vim.keymap.set(
+            "v",
+            add_map,
+            ":ChaceAddSnippet<CR>",
+            { noremap = true, silent = true, desc = "Chace: Add Snippet" }
+        )
+    end
+
+    if clear_map and clear_map ~= false then
+        vim.keymap.set(
+            "n",
+            clear_map,
+            "<cmd>ChaceClearContexts<CR>",
+            { noremap = true, silent = true, desc = "Chace: Clear Contexts" }
+        )
+    end
+end
+
+M.context_snippets = {}
+
+function M.add_context_snippet(snippet)
+    if type(snippet) == "string" and #snippet > 0 then
+        table.insert(M.context_snippets, snippet)
+        safe_notify("Added context snippet.", vim.log.levels.INFO)
+    else
+        safe_notify("Invalid snippet provided.", vim.log.levels.WARN)
+    end
+end
+
+function M.clear_context_snippets()
+    M.context_snippets = {}
+    safe_notify("Chace context snippets cleared.", vim.log.levels.INFO)
 end
 
 -- Convert byte index → (line, col)
@@ -184,6 +249,7 @@ function M.run()
         source_code = text,
         cursor_byte = cursor_byte,
         backend = M.config.model,
+        context_snippets = M.context_snippets,
     }
 
     vim.schedule(function()
@@ -227,12 +293,7 @@ function M.run()
             end
 
             -- Format the replacement text with proper indentation
-            local formatted = "\n"
-                .. indent
-                .. "    "
-                .. (result.body or ""):gsub("\n", "\n" .. indent .. "    ")
-                .. "\n"
-                .. indent
+            local formatted = result.body or ""
 
             local replacement_lines = vim.split(formatted, "\n", { plain = true })
 
@@ -264,6 +325,18 @@ function M.run()
                 safe_notify("Failed to set text: " .. tostring(err), vim.log.levels.ERROR)
                 return
             end
+
+            -- Auto-format after insertion
+            vim.schedule(function()
+                -- Try conform.nvim first
+                local conform_ok, conform = pcall(require, "conform")
+                if conform_ok then
+                    conform.format({ bufnr = buf, async = false })
+                else
+                    -- Fallback to LSP formatting
+                    vim.lsp.buf.format({ bufnr = buf })
+                end
+            end)
 
             safe_notify("CHACE applied successfully", vim.log.levels.INFO, true)
         end)
