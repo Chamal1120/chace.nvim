@@ -1,6 +1,6 @@
-# chace.nvim
-
-Neovim plugin for CHACE (CHamal's AutoComplete Engine) - a controlled AI-assisted code completion tool.
+<div style="text-align: left;">
+  <img src="logo/chace.nvim-logo.png" style="width:70%; margin: 0 auto;" />
+</div>
 
 ## Overview
 
