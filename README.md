@@ -4,15 +4,14 @@
 
 ## Overview
 
-**chace.nvim** integrates the CHACE Rust engine into Neovim, providing focused AI code completion.  Instead of generating large code blocks, CHACE targets specific functions at your cursor position and generates the implementation.
+**chace.nvim** integrates the CHACE Rust engine into Neovim. You can read more about CHACE by clicking [here](https://github/chamal1120/chace) but basically this is an AI agent configured specificically for implementing functions using function declerations.
 
 ## Features
 
-- Targets empty function definitions at cursor position
-- Sends minimal context to LLM (function signature and documentation only)
-- Reduces token usage and produces predictable results
+- Targets function declerations at cursor position
+- Sends minimal context to LLM (function decleration and documentation only)
 - Supports multiple LLM backends (Gemini, Groq)
-- Currently supports Rust language
+- Incurs less tokens compared to tools like GitHub Copilot or agents like cursor for implementing the same function.
 
 ## Requirements
 
@@ -68,7 +67,7 @@ export GROQ_API_KEY="your-api-key"
 
 ## Usage
 
-Place your cursor inside an empty function definition and trigger completion:
+Place your cursor inside an empty function decleration and trigger completion:
 
 ```vim
 :Chace
