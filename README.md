@@ -6,6 +6,9 @@
 
 **chace.nvim** integrates the CHACE Rust engine into Neovim. You can read more about CHACE by clicking [here](https://github/chamal1120/chace) but basically this is an AI agent configured specificically for implementing functions using function declerations.
 
+## Demo
+![CHACE demo showing it's cabapilities](logo/demo.webp)
+
 ## Features
 
 - Targets function declerations at cursor position
