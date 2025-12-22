@@ -96,15 +96,15 @@ M.context_snippets = {}
 function M.add_context_snippet(snippet)
     if type(snippet) == "string" and #snippet > 0 then
         table.insert(M.context_snippets, snippet)
-        safe_notify("Added context snippet.", vim.log.levels.INFO)
+        safe_notify("Added to snippets list", vim.log.levels.INFO)
     else
-        safe_notify("Invalid snippet provided.", vim.log.levels.WARN)
+        safe_notify("Invalid snippet provided", vim.log.levels.WARN)
     end
 end
 
 function M.clear_context_snippets()
     M.context_snippets = {}
-    safe_notify("Chace context snippets cleared.", vim.log.levels.INFO)
+    safe_notify("Context snippets cleared", vim.log.levels.INFO)
 end
 
 -- Convert byte index → (line, col)
@@ -338,7 +338,7 @@ function M.run()
                 end
             end)
 
-            safe_notify("CHACE applied successfully", vim.log.levels.INFO, true)
+            safe_notify("Completion Success!", vim.log.levels.INFO, true)
         end)
     end)
 end

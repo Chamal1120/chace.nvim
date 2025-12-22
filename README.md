@@ -86,7 +86,7 @@ Default configuration:
 require('chace').setup({
   debug = false, -- Set to true to enable debug logs
   show_notifications = true, -- Set to false to suppress all notifications
-  model = "groq", -- set model (ie: "Gemini")
+  model = "groq", -- set model (Gemini/groq)
   keymap = "<leader>c", -- set keymap
 })
 ```
