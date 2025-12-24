@@ -32,15 +32,74 @@ local function safe_notify(msg, level, force)
     end
 end
 
+M.handle = nil -- To store the Job ID
+
+function M.start_backend()
+    if vim.fn.executable("chace") == 1 then
+        os.remove("/tmp/chace.sock")
+
+        -- We store the job ID in M.handle
+        M.handle = vim.fn.jobstart({ "chace" }, {
+            on_stderr = function(_, data)
+                vim.schedule(function()
+                    print("Chace Binary Error: " .. table.concat(data, "\n"))
+                end)
+            end,
+        })
+
+        if M.handle > 0 then
+            safe_notify("Chace backend started.", vim.log.levels.DEBUG)
+        end
+    else
+        safe_notify("chace binary not found.", vim.log.levels.ERROR)
+    end
+end
+
+function M.stop_backend()
+    if M.handle and M.handle > 0 then
+        vim.fn.jobstop(M.handle)
+        M.handle = nil
+        -- Clean up the socket file so it doesn't block the next start
+        os.remove("/tmp/chace.sock")
+    end
+end
+
+function M.is_backend_running()
+    local handle = io.popen("pgrep -x chace")
+
+    -- Check if handle is NOT nil before using it
+    if handle then
+        local result = handle:read("*a")
+        handle:close()
+        return result ~= ""
+    end
+
+    return false
+end
+
 -- Setup function to configure the plugin
 function M.setup(opts)
     M.config = vim.tbl_extend("force", M.config, opts or {})
 
+    -- Check if binary exists in system PATH
+    if vim.fn.executable("chace") == 0 then
+        safe_notify("chace binary not found in PATH. Please install it.", vim.log.levels.ERROR)
+    end
+
+    -- Create Autocommand to kill the process on exit
+    vim.api.nvim_create_autocmd("VimLeave", {
+        callback = function()
+            M.stop_backend()
+        end,
+    })
+
     vim.api.nvim_create_user_command("Chace", function()
+        M.ensure_backend()
         require("chace").run()
     end, {})
 
     vim.api.nvim_create_user_command("ChaceAddSnippet", function(opts)
+        M.ensure_backend()
         if opts.fargs and #opts.fargs > 0 then
             M.add_context_snippet(table.concat(opts.fargs, " "))
         elseif opts.range ~= 0 and opts.line1 and opts.line2 then
@@ -88,6 +147,19 @@ function M.setup(opts)
             "<cmd>ChaceClearContexts<CR>",
             { noremap = true, silent = true, desc = "Chace: Clear Contexts" }
         )
+    end
+end
+
+function M.ensure_backend()
+    if not M.is_backend_running() then
+        safe_notify("Initializing Chace backend...", vim.log.levels.DEBUG)
+        os.remove("/tmp/chace.sock")
+        M.start_backend()
+
+        -- Give the binary a few milliseconds to create the socket
+        vim.wait(200, function()
+            return vim.uv.fs_stat("/tmp/chace.sock")
+        end)
     end
 end
 
