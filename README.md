@@ -29,6 +29,11 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 ```lua
 {
   'chamal1120/chace.nvim',
+  cmd = { "Chace", "ChaceAddSnippet", "ChaceClearContexts" },
+  keys = { 
+      { "<leader>c", desc = "Chace Run" },
+      { "<leader>ct", mode = "v", desc = "Chace Add Snippet" } 
+  },
   config = function()
     require('chace').setup({
       debug = false,
@@ -43,6 +48,11 @@ Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 ```lua
 use {
   'chamal1120/chace.nvim',
+  cmd = { "Chace", "ChaceAddSnippet", "ChaceClearContexts" },
+  keys = { 
+      { "<leader>c", desc = "Chace Run" },
+      { "<leader>ct", mode = "v", desc = "Chace Add Snippet" } 
+  },
   config = function()
     require('chace').setup({
       debug = false,
@@ -77,10 +87,10 @@ Default configuration:
 
 ```lua
 require('chace').setup({
-  debug = false, -- Set to true to enable debug logs
-  show_notifications = true, -- Set to false to suppress all notifications
-  model = "groq", -- set model (Gemini/groq)
-  keymap = "<leader>c", -- set keymap
+  debug = false,                -- Set to true to enable debug logs
+  show_notifications = true,    -- Set to false to suppress all notifications
+  model = "groq",               -- set model (Gemini/groq)
+  keymap = "<leader>c",         -- set keymap
 })
 ```
 

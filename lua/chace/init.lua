@@ -1,3 +1,5 @@
+local state = require("chace.state")
+
 local M = {}
 
 M.config = {
@@ -121,6 +123,21 @@ function M.setup(opts)
 
     vim.api.nvim_create_user_command("ChaceClearContexts", function()
         M.clear_context_snippets()
+    end, {})
+
+    vim.api.nvim_create_user_command("ChaceUsage", function()
+        local history = state.usage_history
+        if #history == 0 then
+            print("No usage recorded yet.")
+            return
+        end
+
+        local current_totals = state.get_total_session_tokens()
+        print("Chace Session Usage")
+        print("---------------------------")
+        print(string.format("Total Session Prompt Tokens: %d", current_totals.prompt_tokens))
+        print(string.format("Total Session Completion Tokens: %d", current_totals.completion_tokens))
+        print(string.format("Total Session Tokens: %d", current_totals.total_tokens))
     end, {})
 
     local run_map = M.config.keymap
@@ -280,6 +297,7 @@ local function send_request(socket_path, payload, on_response)
                         local ok, decoded = pcall(vim.json.decode, line)
                         if ok then
                             on_response(decoded)
+                            state.add_usage(decoded.usage, payload.backend)
                         else
                             vim.schedule(function()
                                 safe_notify("JSON decode failed: " .. tostring(decoded), vim.log.levels.ERROR)
@@ -321,6 +339,7 @@ function M.run()
         source_code = text,
         cursor_byte = cursor_byte,
         backend = M.config.model,
+        file_type = vim.bo.filetype,
         context_snippets = M.context_snippets,
     }
 
