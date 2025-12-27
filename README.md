@@ -4,10 +4,12 @@
 
 ## Overview
 
-**chace.nvim** integrates the CHACE Rust engine into Neovim. You can read more about CHACE by clicking [here](https://github.com/chamal1120/chace) but basically this is an AI completion plugin configured specifically for implementing functions using function declerations.
+**chace.nvim** is an AI based code completion plugin built for neovim targetting **power users** or people who are fed up with AI splashing slop all over their codebases. It utilizes a blazing fast treesitter based backend [CHACE](https://github.com/chamal1120/chace) that parses the current buffer and sends minimal context (which can only be expaned on user's decision) to an LLM or choice to generate implementaions.
+
+This is not an inline completion tool for completing every line you type. I specifically built this for trying out a new **zen AI code completions experience** where a user only calls an LLM when needed for implementing complex logics which lives inside functions/methods most of the time. I believe this approach is better because this way we can lay the blueprint (the classes, objects, structs and traits) ourselves and only call an LLM for help to implement something that is complicated or lazy to implement manually.
 
 > [!NOTE]
-> This plugin is in early-development so bugs and breaking changes are expected.
+> This plugin is in early-development so bugs and breaking changes might occur.
 
 ## Demo
 ![CHACE demo showing it's cabapilities](assets/demo.webp)
@@ -15,9 +17,10 @@
 ## Features
 
 - Targets function declerations at cursor position
-- Sends minimal context to LLM (function decleration and documentation only)
+- Sends minimal context to LLM ( as of now function decleration and documentation only)
 - Supports multiple LLM backends (Gemini, groq)
 - Incurs less tokens compared to tools like GitHub Copilot or agents like cursor for implementing the same function.
+- Tracks token usage.
 
 ## Requirements
 
@@ -90,10 +93,12 @@ Default configuration:
 
 ```lua
 require('chace').setup({
-  debug = false,                -- Set to true to enable debug logs
-  show_notifications = true,    -- Set to false to suppress all notifications
-  model = "groq",               -- set model (Gemini/groq)
-  keymap = "<leader>c",         -- set keymap
+  debug =               false,          -- Set to true to enable debug logs
+  show_notifications =  true,           -- Set to false to suppress all notifications
+  model =               "groq",         -- set model (Gemini/groq)
+  keymap =              "<leader>c",    -- set completion key
+  add_keymap =          "<leader>ct",   -- set add to context key
+  clear_keymap =        "<leader>cu",   -- set clear contexts list key
 })
 ```
 
