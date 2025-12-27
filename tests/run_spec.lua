@@ -22,7 +22,7 @@ describe("Chace Configuration Tests", function()
 	before_each(function()
 		reset_config()
 		-- clear user command and keymap to prevent leakage between tests
-		vim.cmd("delcommand Chace")
+		pcall(vim.cmd, "delcommand Chace")
 		pcall(vim.keymap.del, "n", M.config.keymap)
 	end)
 
