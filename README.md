@@ -4,9 +4,9 @@
 
 ## Overview
 
-**chace.nvim** is an AI based code completion plugin built for neovim targetting **power users** or people who are fed up with AI splashing slop all over their codebases. It utilizes a blazing fast treesitter based backend [CHACE](https://github.com/chamal1120/chace) that parses the current buffer and sends minimal context (which can only be expaned on user's decision) to an LLM or choice to generate implementaions.
+**CHACE.nvim** is an AI based code completion plugin built for neovim targetting **power users** or people who are fed up with AI splashing slop all over their codebases. It utilizes a blazing fast treesitter based backend [CHACE](https://github.com/chamal1120/chace) that parses the current buffer, selects and sends the minimal context (which can only be expanded on user's decision) to an LLM of choice for generating implementaions.
 
-This is not an inline completion tool for completing every line you type. I specifically built this for trying out a new **zen AI code completions experience** where a user only calls an LLM when needed for implementing complex logics which lives inside functions/methods most of the time. I believe this approach is better because this way we can lay the blueprint (the classes, objects, structs and traits) ourselves and only call an LLM for help to implement something that is complicated or lazy to implement manually.
+This is not an inline completion tool for completing every line you type. I specifically built this for trying out a new **zen AI code completions experience** where a user only calls an LLM when needed for implementing complex (or cumbersome) logics which lives inside functions/methods most of the time. I believe this approach is better because this way we can lay the blueprints (the classes, objects, structs and traits) ourselves and only call an LLM for help to implement something that is complicated or lazy to implement manually.
 
 > [!NOTE]
 > This plugin is in early-development so bugs and breaking changes might occur.
