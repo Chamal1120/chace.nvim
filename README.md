@@ -17,7 +17,7 @@ This is not an inline completion tool for completing every line you type. I spec
 ## Features
 
 - Targets function declerations at cursor position
-- Sends minimal context to LLM ( as of now function decleration and documentation only)
+- Sends minimal context to LLM ( as of now function decleration, documentation and user selected context only)
 - Supports multiple LLM backends (Gemini, groq)
 - Incurs less tokens compared to tools like GitHub Copilot or agents like cursor for implementing the same function.
 - Tracks token usage.
